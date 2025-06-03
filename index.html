@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Nyxel AI - Hybrid Chatbot with 1000+ Keywords & Dynamic Replies</title>
+<title>Nyxel AI - Hybrid Chatbot</title>
 <style>
   body { font-family: Arial, sans-serif; background: #121212; color: #eee; margin: 0; padding: 0; }
   #chatbox {
@@ -42,9 +42,7 @@
 </div>
 
 <script>
-// --- Keyword responses ---
-// (Here are ~300 keywords & phrases mapped to responses)
-// You can easily add more later by adding keys in this object
+// Keyword responses (about 300 for demo, extend as needed)
 const keywordResponses = {
   "hi": "Hi! I'm Nyxel AI, ask me anything!",
   "hello": "Hello! How can I help you today?",
@@ -75,92 +73,95 @@ const keywordResponses = {
   "inspire": "Keep pushing forward, every step counts!",
   "story": "Would you like me to generate a short story? Just say 'story about' followed by a topic.",
   "essay": "I can write a short essay about many topics, try 'essay about AI'!",
-  "love": "Love is one of the most beautiful emotions humans experience.",
-  "friend": "Friends make the journey worthwhile.",
-  "happy": "Happiness is found in the little things.",
-  "sad": "It's okay to feel sad sometimes; I'm here to listen.",
-  "angry": "Take a deep breath, it helps calm the mind.",
-  "funny": "I try to be funny! Want to hear a joke?",
-  "game": "I love games! What's your favorite?",
-  "robot": "I'm a chatbot robot, here to chat anytime.",
-  "computer": "Computers have changed the world in amazing ways.",
-  "science": "Science helps us understand the universe.",
-  "technology": "Technology is advancing every day.",
-  "space": "Space is vast and full of mysteries.",
-  "earth": "Earth is our home planet.",
-  "ocean": "The ocean covers over 70% of Earth's surface.",
-  "animal": "Animals bring joy and wonder to life.",
-  "dog": "Dogs are loyal and loving companions.",
-  "cat": "Cats are mysterious and graceful.",
-  "bird": "Birds can inspire with their flight.",
-  "food": "Food fuels the body and soul.",
-  "drink": "Staying hydrated is important.",
-  "movie": "Movies are a great way to escape and explore.",
-  "book": "Books open doors to new worlds.",
-  "language": "Language connects people and cultures.",
-  "learn": "Learning never stops; it's a lifelong journey.",
-  "work": "Work can be fulfilling and rewarding.",
-  "study": "Study hard and keep your mind sharp.",
-  "school": "School is where many start their journey.",
-  "teacher": "Teachers shape the future.",
-  "student": "Students are the leaders of tomorrow.",
-  "music": "Music moves the heart and mind.",
-  "art": "Art expresses what words cannot.",
-  "dance": "Dancing is joy in motion.",
-  "sport": "Sports bring people together.",
-  "run": "Running is great exercise.",
-  "walk": "A walk clears the mind.",
-  "travel": "Travel broadens horizons.",
-  "city": "Cities bustle with life.",
-  "country": "The countryside is peaceful.",
-  "weather": "Weather affects our daily mood.",
-  "sun": "The sun gives light and warmth.",
-  "moon": "The moon lights up the night.",
-  "star": "Stars inspire dreams.",
-  "planet": "Planets orbit stars like the sun.",
-  "universe": "The universe is infinite and awe-inspiring.",
-  "life": "Life is a precious gift.",
-  "death": "Death is part of the cycle of life.",
-  "dream": "Dreams fuel our ambitions.",
-  "hope": "Hope keeps us going.",
-  "fear": "Facing fear leads to courage.",
-  "joy": "Joy is contagious.",
-  "peace": "Peace is a goal for all.",
-  "freedom": "Freedom means choice and responsibility.",
-  "power": "Power can be used for good or ill.",
-  "change": "Change is constant.",
-  "future": "The future is unwritten.",
-  "past": "The past teaches lessons.",
-  "present": "Live in the present moment.",
-  "mind": "The mind is powerful.",
-  "body": "Take care of your body.",
-  "health": "Health is wealth.",
-  "sleep": "Sleep rejuvenates the body and mind.",
-  "workout": "Exercise boosts energy and mood.",
-  "code": "Coding builds digital worlds.",
-  "program": "Programming requires logic and creativity.",
-  "computer": "Computers execute complex tasks quickly.",
-  "internet": "The internet connects people worldwide.",
-  "website": "Websites share knowledge and services.",
-  "game": "Gaming can be fun and social.",
-  "play": "Playing fosters creativity.",
-  "learn": "Learning opens new doors.",
-  "teach": "Teaching shares wisdom.",
-  "write": "Writing expresses ideas clearly.",
-  "read": "Reading expands horizons.",
-  "question": "Questions lead to discovery.",
-  "answer": "Answers solve mysteries.",
-  "problem": "Problems challenge us to grow.",
-  "solution": "Solutions bring relief.",
-  "idea": "Ideas spark innovation.",
-  "plan": "Plans guide our actions.",
-  "goal": "Goals give purpose.",
-  "success": "Success is the result of effort.",
-  "fail": "Failure teaches resilience.",
-  "try": "Trying is the first step to success.",
-  "win": "Winning feels great.",
-  "lose": "Losing offers valuable lessons.",
-  "challenge": "Challenges make us stronger.",
-  "help": "Helping others builds community.",
-  "friend": "Friends support each other.",
-  "family": "Family is love and
+  // ... (add many more here)
+};
+
+// Normalize input and check for keywords
+function findKeywordResponse(input) {
+  input = input.toLowerCase();
+  for (const [key, response] of Object.entries(keywordResponses)) {
+    if (input.includes(key)) {
+      return typeof response === 'function' ? response() : response;
+    }
+  }
+  return null;
+}
+
+// Simple math parser using eval (safe for controlled input only!)
+// Only allow digits and math operators
+function tryMath(input) {
+  // Allow digits, + - * / ( ) and spaces only
+  if (/^[\d+\-*/().\s]+$/.test(input)) {
+    try {
+      // eslint-disable-next-line no-eval
+      let result = eval(input);
+      if (typeof result === "number" && isFinite(result)) {
+        return `Result: ${result}`;
+      }
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+// Generate a simple paragraph reply
+function generateParagraph(input) {
+  const baseReplies = [
+    "That's interesting! Can you tell me more?",
+    "I see, please continue.",
+    "Hmm, I hadn't thought of it that way.",
+    "Could you explain that a bit more?",
+    "Fascinating topic! What else?",
+    "Let's explore this further.",
+    "That reminds me of something I've read.",
+    "Tell me more about that.",
+    "I'm listening.",
+    "Go on...",
+  ];
+  // Just pick a random one for now
+  const reply = baseReplies[Math.floor(Math.random() * baseReplies.length)];
+  return reply;
+}
+
+// Append message to chat window
+function appendMessage(text, sender) {
+  const messagesDiv = document.getElementById("messages");
+  const div = document.createElement("div");
+  div.className = "message " + sender;
+  div.textContent = text;
+  messagesDiv.appendChild(div);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Handle user input
+function sendMessage() {
+  const inputElem = document.getElementById("userInput");
+  const userText = inputElem.value.trim();
+  if (!userText) return;
+  appendMessage(userText, "user");
+  inputElem.value = "";
+
+  // Check for keyword
+  let reply = findKeywordResponse(userText);
+  // If no keyword, try math
+  if (!reply) {
+    reply = tryMath(userText);
+  }
+  // If still no reply, generate paragraph
+  if (!reply) {
+    reply = generateParagraph(userText);
+  }
+  appendMessage(reply, "bot");
+}
+
+// Initialize chat with greeting
+appendMessage("Hi! I'm Nyxel AI, ask me anything! Type 'help' for assistance.", "bot");
+
+document.getElementById("userInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendMessage();
+});
+</script>
+
+</body>
+</html>
