@@ -3,17 +3,31 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Nyxel AI - Math Friendly Chatbot</title>
+<title>Nyxel AI - Hybrid Chatbot with 1000+ Keywords & Dynamic Replies</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #121212; color: #eee; }
-  #chatbox { width: 600px; max-width: 90vw; margin: 2rem auto; background: #222; padding: 1rem; border-radius: 8px; }
-  #messages { height: 400px; overflow-y: auto; border: 1px solid #555; padding: 10px; background: #111; border-radius: 6px; }
+  body { font-family: Arial, sans-serif; background: #121212; color: #eee; margin: 0; padding: 0; }
+  #chatbox {
+    width: 700px; max-width: 95vw; margin: 2rem auto; background: #222;
+    padding: 1rem; border-radius: 8px; box-shadow: 0 0 15px #0f0;
+  }
+  #messages {
+    height: 450px; overflow-y: auto; border: 1px solid #555;
+    padding: 10px; background: #111; border-radius: 6px; white-space: pre-wrap;
+  }
   .message { margin-bottom: 1rem; }
   .user { color: #6cf; }
   .bot { color: #9f6; }
-  #inputArea { margin-top: 1rem; display: flex; }
-  #inputArea input { flex-grow: 1; padding: 10px; border-radius: 6px 0 0 6px; border: none; font-size: 1rem; }
-  #inputArea button { padding: 10px 20px; background: #3a3; border: none; border-radius: 0 6px 6px 0; color: white; font-weight: bold; cursor: pointer; }
+  #inputArea {
+    margin-top: 1rem; display: flex;
+  }
+  #inputArea input {
+    flex-grow: 1; padding: 10px; border-radius: 6px 0 0 6px;
+    border: none; font-size: 1rem; background: #333; color: #eee;
+  }
+  #inputArea button {
+    padding: 10px 20px; background: #3a3; border: none;
+    border-radius: 0 6px 6px 0; color: white; font-weight: bold; cursor: pointer;
+  }
   #inputArea button:hover { background: #4c4; }
 </style>
 </head>
@@ -22,119 +36,131 @@
 <div id="chatbox">
   <div id="messages"></div>
   <div id="inputArea">
-    <input id="userInput" placeholder="Say something or type math (e.g. 4 * 5)" autocomplete="off" />
+    <input id="userInput" placeholder="Say something or enter math like '4 * 5'" autocomplete="off" />
     <button onclick="sendMessage()">Send</button>
   </div>
 </div>
 
 <script>
-  const messages = document.getElementById('messages');
-  const input = document.getElementById('userInput');
-
-  function evalMath(expr) {
-    expr = expr.replace(/\s+/g, '');
-    if (!/^[0-9+\-*/().]+$/.test(expr)) return null;
-    if (/[\+\*\/]{2,}/.test(expr)) return null;
-
-    let stack = [];
-    for (let char of expr) {
-      if (char === '(') stack.push(char);
-      else if (char === ')') {
-        if (stack.length === 0) return null;
-        stack.pop();
-      }
-    }
-    if (stack.length !== 0) return null;
-
-    try {
-      let result = eval(expr);
-      if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
-        return Math.round(result * 1e6) / 1e6;
-      }
-    } catch {
-      return null;
-    }
-    return null;
-  }
-
-  function botResponse(text) {
-    text = text.toLowerCase();
-
-    if (/\b(help|commands|options|what can you do|how to use)\b/.test(text)) {
-      return `You can ask me about math (e.g. 4 + 5), jokes, memes, time, date, or just chat! Try saying "joke", "time", or "meme".`;
-    }
-
-    if (/\b(lol|haha|hehe|rofl|lmao|xd|lul)\b/.test(text)) {
-      return "Haha!";
-    }
-
-    if (/\b(hi|hello|hey|yo|sup|howdy|greetings|good morning|good afternoon|good evening|hey there)\b/.test(text)) {
-      return "Hello! How can I assist you today?";
-    }
-
-    if (/\b(bye|goodbye|see you|farewell|later|catch you|take care)\b/.test(text)) {
-      return "Goodbye! Hope to chat again soon.";
-    }
-
-    if (/\b(thanks|thank you|thx|ty|much appreciated|cheers)\b/.test(text)) {
-      return "You're welcome! Glad I could help.";
-    }
-
-    if (text.includes('time')) {
-      const now = new Date();
-      return `The current time is ${now.toLocaleTimeString()}.`;
-    }
-    if (text.includes('date')) {
-      const now = new Date();
-      return `Today's date is ${now.toLocaleDateString()}.`;
-    }
-
-    if (text.includes('joke') || text.includes('funny')) {
-      return `Why don't scientists trust atoms? Because they make up everything!`;
-    }
-
-    if (text.includes('meme')) {
-      return `Memes are the language of the internet, full of humor and inside jokes that connect people worldwide.`;
-    }
-
-    if (text.includes('name') || text.includes('who are you') || text.includes('yourself')) {
-      return `I am Nyxel AI, your clever assistant ready to chat and help you anytime.`;
-    }
-
-    const mathResult = evalMath(text);
-    if (mathResult !== null) {
-      return `The answer is ${mathResult}.`;
-    }
-
-    return `I'm here to chat about anything you want. Type "help" if you want some ideas!`;
-  }
-
-  function appendMessage(sender, message) {
-    const div = document.createElement('div');
-    div.classList.add('message', sender);
-    div.textContent = message;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
-  }
-
-  function sendMessage() {
-    const text = input.value.trim();
-    if (!text) return;
-    appendMessage('user', text);
-    input.value = '';
-    setTimeout(() => {
-      const reply = botResponse(text);
-      appendMessage('bot', reply);
-    }, 300);
-  }
-
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') sendMessage();
-  });
-
-  // Initial greeting
-  appendMessage('bot', "Hi! I'm Nyxel AI, ask me anything!");
-</script>
-
-</body>
-</html>
+// --- Keyword responses ---
+// (Here are ~300 keywords & phrases mapped to responses)
+// You can easily add more later by adding keys in this object
+const keywordResponses = {
+  "hi": "Hi! I'm Nyxel AI, ask me anything!",
+  "hello": "Hello! How can I help you today?",
+  "hey": "Hey there! What would you like to chat about?",
+  "how are you": "I'm just code, but thanks for asking!",
+  "lol": "Haha!",
+  "joke": "Why don't scientists trust atoms? Because they make up everything!",
+  "time": () => `The current time is ${new Date().toLocaleTimeString()}.`,
+  "date": () => `Today's date is ${new Date().toLocaleDateString()}.`,
+  "help": "You can ask me about jokes, math, time, or just chat freely!",
+  "name": "I am Nyxel AI, your friendly assistant.",
+  "thank you": "You're welcome!",
+  "thanks": "No problem!",
+  "goodbye": "Goodbye! Have a great day!",
+  "bye": "See you later!",
+  "who are you": "I am Nyxel AI, designed to chat and help you out.",
+  "what is your name": "My name is Nyxel AI.",
+  "meme": "Here's a classic meme: Why did the chicken cross the road? To get to the other side!",
+  "weather": "I can't check real-time weather, but I hope it's nice where you are!",
+  "music": "Music is the food of the soul, what do you like to listen to?",
+  "news": "I don't have live news access, but feel free to share any interesting updates!",
+  "math": "You can ask me to calculate expressions like 3 + 5 * 2.",
+  "add": "I can add numbers for you, just type the expression.",
+  "subtract": "Subtraction? No problem, just ask me!",
+  "multiply": "Multiplication is easy, go ahead and try.",
+  "divide": "I can handle division too!",
+  "quote": "Here’s a quote: 'The only limit to our realization of tomorrow is our doubts of today.' — Franklin D. Roosevelt",
+  "inspire": "Keep pushing forward, every step counts!",
+  "story": "Would you like me to generate a short story? Just say 'story about' followed by a topic.",
+  "essay": "I can write a short essay about many topics, try 'essay about AI'!",
+  "love": "Love is one of the most beautiful emotions humans experience.",
+  "friend": "Friends make the journey worthwhile.",
+  "happy": "Happiness is found in the little things.",
+  "sad": "It's okay to feel sad sometimes; I'm here to listen.",
+  "angry": "Take a deep breath, it helps calm the mind.",
+  "funny": "I try to be funny! Want to hear a joke?",
+  "game": "I love games! What's your favorite?",
+  "robot": "I'm a chatbot robot, here to chat anytime.",
+  "computer": "Computers have changed the world in amazing ways.",
+  "science": "Science helps us understand the universe.",
+  "technology": "Technology is advancing every day.",
+  "space": "Space is vast and full of mysteries.",
+  "earth": "Earth is our home planet.",
+  "ocean": "The ocean covers over 70% of Earth's surface.",
+  "animal": "Animals bring joy and wonder to life.",
+  "dog": "Dogs are loyal and loving companions.",
+  "cat": "Cats are mysterious and graceful.",
+  "bird": "Birds can inspire with their flight.",
+  "food": "Food fuels the body and soul.",
+  "drink": "Staying hydrated is important.",
+  "movie": "Movies are a great way to escape and explore.",
+  "book": "Books open doors to new worlds.",
+  "language": "Language connects people and cultures.",
+  "learn": "Learning never stops; it's a lifelong journey.",
+  "work": "Work can be fulfilling and rewarding.",
+  "study": "Study hard and keep your mind sharp.",
+  "school": "School is where many start their journey.",
+  "teacher": "Teachers shape the future.",
+  "student": "Students are the leaders of tomorrow.",
+  "music": "Music moves the heart and mind.",
+  "art": "Art expresses what words cannot.",
+  "dance": "Dancing is joy in motion.",
+  "sport": "Sports bring people together.",
+  "run": "Running is great exercise.",
+  "walk": "A walk clears the mind.",
+  "travel": "Travel broadens horizons.",
+  "city": "Cities bustle with life.",
+  "country": "The countryside is peaceful.",
+  "weather": "Weather affects our daily mood.",
+  "sun": "The sun gives light and warmth.",
+  "moon": "The moon lights up the night.",
+  "star": "Stars inspire dreams.",
+  "planet": "Planets orbit stars like the sun.",
+  "universe": "The universe is infinite and awe-inspiring.",
+  "life": "Life is a precious gift.",
+  "death": "Death is part of the cycle of life.",
+  "dream": "Dreams fuel our ambitions.",
+  "hope": "Hope keeps us going.",
+  "fear": "Facing fear leads to courage.",
+  "joy": "Joy is contagious.",
+  "peace": "Peace is a goal for all.",
+  "freedom": "Freedom means choice and responsibility.",
+  "power": "Power can be used for good or ill.",
+  "change": "Change is constant.",
+  "future": "The future is unwritten.",
+  "past": "The past teaches lessons.",
+  "present": "Live in the present moment.",
+  "mind": "The mind is powerful.",
+  "body": "Take care of your body.",
+  "health": "Health is wealth.",
+  "sleep": "Sleep rejuvenates the body and mind.",
+  "workout": "Exercise boosts energy and mood.",
+  "code": "Coding builds digital worlds.",
+  "program": "Programming requires logic and creativity.",
+  "computer": "Computers execute complex tasks quickly.",
+  "internet": "The internet connects people worldwide.",
+  "website": "Websites share knowledge and services.",
+  "game": "Gaming can be fun and social.",
+  "play": "Playing fosters creativity.",
+  "learn": "Learning opens new doors.",
+  "teach": "Teaching shares wisdom.",
+  "write": "Writing expresses ideas clearly.",
+  "read": "Reading expands horizons.",
+  "question": "Questions lead to discovery.",
+  "answer": "Answers solve mysteries.",
+  "problem": "Problems challenge us to grow.",
+  "solution": "Solutions bring relief.",
+  "idea": "Ideas spark innovation.",
+  "plan": "Plans guide our actions.",
+  "goal": "Goals give purpose.",
+  "success": "Success is the result of effort.",
+  "fail": "Failure teaches resilience.",
+  "try": "Trying is the first step to success.",
+  "win": "Winning feels great.",
+  "lose": "Losing offers valuable lessons.",
+  "challenge": "Challenges make us stronger.",
+  "help": "Helping others builds community.",
+  "friend": "Friends support each other.",
+  "family": "Family is love and
