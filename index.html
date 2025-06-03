@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nyxel AI Assistant</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    #chat { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; margin-bottom: 10px; }
+    #userInput { width: 80%; padding: 10px; }
+    #sendBtn { padding: 10px; }
+    .message { margin: 5px 0; }
+    .user { color: blue; }
+    .bot { color: green; }
+  </style>
+</head>
+<body>
+
+  <h1>Nyxel AI Assistant</h1>
+  <div id="chat"></div>
+  <input type="text" id="userInput" placeholder="Type your message here..." />
+  <button id="sendBtn">Send</button>
+
+  <script>
+    const chat = document.getElementById('chat');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    function appendMessage(text, sender) {
+      const msg = document.createElement('div');
+      msg.classList.add('message');
+      msg.classList.add(sender);
+      msg.textContent = text;
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function getBotResponse(input) {
+      input = input.toLowerCase();
+      if (input.includes('hello') || input.includes('hi')) {
+        return "Hello! How can I assist you today?";
+      } else if (input.includes('bye')) {
+        return "Goodbye! Have a great day!";
+      } else {
+        return "Sorry, I don't understand that yet.";
+      }
+    }
+
+    sendBtn.addEventListener('click', () => {
+      const input = userInput.value.trim();
+      if (!input) return;
+      appendMessage("You: " + input, 'user');
+      const response = getBotResponse(input);
+      appendMessage("Nyxel AI: " + response, 'bot');
+      userInput.value = '';
+    });
+
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendBtn.click();
+    });
+  </script>
+
+</body>
+</html>
