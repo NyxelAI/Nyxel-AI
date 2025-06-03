@@ -5,112 +5,158 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Nyxel AI Assistant</title>
 <style>
-  body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 10px; background: #f5f7fa; }
-  #chat { border: 1px solid #ddd; background: #fff; height: 350px; padding: 15px; overflow-y: auto; }
-  #userInput { width: 75%; padding: 10px; font-size: 1rem; }
-  #sendBtn { padding: 10px 15px; font-size: 1rem; cursor: pointer; }
-  .message { margin: 8px 0; }
-  .user { color: #1a73e8; font-weight: bold; }
-  .bot { color: #2e7d32; font-weight: bold; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 600px;
+    margin: 20px auto;
+    background: #eef2f7;
+    padding: 15px;
+    color: #333;
+  }
+  #chat {
+    border: 2px solid #3a86ff;
+    background: #fff;
+    height: 400px;
+    overflow-y: auto;
+    padding: 15px;
+    border-radius: 10px;
+  }
+  #userInput {
+    width: 75%;
+    padding: 12px;
+    font-size: 1rem;
+    border: 2px solid #3a86ff;
+    border-radius: 6px;
+    margin-top: 10px;
+  }
+  #sendBtn {
+    padding: 12px 18px;
+    font-size: 1rem;
+    border: none;
+    background: #3a86ff;
+    color: white;
+    border-radius: 6px;
+    margin-left: 8px;
+    cursor: pointer;
+  }
+  #sendBtn:hover {
+    background: #265dba;
+  }
+  .message {
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .user {
+    color: #0b63ce;
+    font-weight: 600;
+  }
+  .bot {
+    color: #1e3d59;
+    font-weight: 600;
+  }
 </style>
 </head>
 <body>
 
 <h1>Nyxel AI Assistant</h1>
+
 <div id="chat"></div>
 
-<input type="text" id="userInput" placeholder="Ask me anything..." autocomplete="off" />
+<input id="userInput" placeholder="Say something..." autocomplete="off" />
 <button id="sendBtn">Send</button>
 
 <script>
-const chat = document.getElementById('chat');
-const userInput = document.getElementById('userInput');
-const sendBtn = document.getElementById('sendBtn');
+  const chat = document.getElementById('chat');
+  const input = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
 
-// Keep track of simple context
-let conversationContext = {
-  greeted: false,
-  lastTopic: null,
-};
+  let userName = null;
+  let askedName = false;
 
-function appendMessage(text, sender) {
-  const messageDiv = document.createElement('div');
-  messageDiv.classList.add('message', sender);
-  messageDiv.textContent = text;
-  chat.appendChild(messageDiv);
-  chat.scrollTop = chat.scrollHeight;
-}
-
-function getBotResponse(input) {
-  input = input.toLowerCase();
-
-  if (!conversationContext.greeted) {
-    conversationContext.greeted = true;
-    return "Hi there! I'm Nyxel AI — your smart assistant. Ask me anything or say 'help' to get started.";
+  function appendMessage(text, sender) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    div.classList.add('message', sender);
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
   }
 
-  if (input.includes("help")) {
-    return "I can chat with you, tell jokes, give advice, or just listen. Try saying 'tell me a joke' or ask 'what's the time?'";
+  function getResponse(message) {
+    message = message.toLowerCase();
+
+    // Ask for name if not asked
+    if (!askedName) {
+      askedName = true;
+      return "Hey! Before we start, what's your name?";
+    }
+
+    // Store the name if not set yet, allow letters only
+    if (!userName) {
+      if (/^[a-z]+$/i.test(message)) {
+        userName = message.charAt(0).toUpperCase() + message.slice(1);
+        return `Nice to meet you, ${userName}! How can I assist you today?`;
+      } else {
+        return "Hmm, that doesn't seem like a name. Please tell me your name using letters only.";
+      }
+    }
+
+    if (message.includes("hello") || message.includes("hi") || message.includes("hey")) {
+      return `Hello again, ${userName}! What would you like to talk about?`;
+    }
+
+    if (message.includes("time")) {
+      const now = new Date();
+      return `It's currently ${now.toLocaleTimeString()}.`;
+    }
+
+    if (message.includes("joke")) {
+      const jokes = [
+        "Why don't scientists trust atoms? Because they make up everything!",
+        "I told my computer I needed a break, and it said 'No problem, I'll go to sleep.'",
+        "Why do programmers hate nature? Too many bugs."
+      ];
+      return jokes[Math.floor(Math.random() * jokes.length)];
+    }
+
+    if (message.includes("help")) {
+      return `I can chat, tell jokes, tell the time, or just listen. Try typing 'joke' or 'time'.`;
+    }
+
+    if (message.includes("bye") || message.includes("exit") || message.includes("quit")) {
+      return `Goodbye, ${userName}! It was great chatting with you.`;
+    }
+
+    if (message.includes("how are you")) {
+      return "I'm just code, but if I had feelings, I'd say I'm doing great! Thanks for asking.";
+    }
+
+    // fallback for unrecognized inputs
+    return `Sorry, ${userName}, I don't understand that yet. Try 'help' for ideas!`;
   }
 
-  if (input.includes("hello") || input.includes("hi") || input.includes("hey")) {
-    return "Hello again! What would you like to talk about?";
+  function sendMessage() {
+    const message = input.value.trim();
+    if (!message) return;
+
+    appendMessage(`You: ${message}`, "user");
+
+    const response = getResponse(message);
+    appendMessage(`Nyxel AI: ${response}`, "bot");
+
+    if (message.toLowerCase().includes("bye") || message.toLowerCase().includes("exit") || message.toLowerCase().includes("quit")) {
+      input.disabled = true;
+      sendBtn.disabled = true;
+    }
+
+    input.value = "";
   }
 
-  if (input.includes("time")) {
-    const now = new Date();
-    return `It's currently ${now.toLocaleTimeString()}.`;
-  }
+  sendBtn.addEventListener("click", sendMessage);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
 
-  if (input.includes("joke")) {
-    const jokes = [
-      "Why did the computer show up at work late? It had a hard drive!",
-      "Why do programmers prefer dark mode? Because light attracts bugs!",
-      "Why did the AI go to art school? To learn how to draw conclusions!"
-    ];
-    return jokes[Math.floor(Math.random() * jokes.length)];
-  }
-
-  if (input.includes("advice")) {
-    const adviceList = [
-      "Take breaks often to stay sharp!",
-      "Don't be afraid to ask questions.",
-      "Practice makes perfect, keep coding!"
-    ];
-    return adviceList[Math.floor(Math.random() * adviceList.length)];
-  }
-
-  if (input.includes("bye") || input.includes("exit") || input.includes("quit")) {
-    return "Goodbye! Hope to chat with you again soon.";
-  }
-
-  // Basic fallback
-  return "I'm not sure how to respond to that yet. Try asking for 'help'!";
-}
-
-function userSend() {
-  const input = userInput.value.trim();
-  if (!input) return;
-
-  appendMessage("You: " + input, "user");
-  const response = getBotResponse(input);
-  appendMessage("Nyxel AI: " + response, "bot");
-
-  if (input.toLowerCase().includes("bye") || input.toLowerCase().includes("exit") || input.toLowerCase().includes("quit")) {
-    userInput.disabled = true;
-    sendBtn.disabled = true;
-  }
-
-  userInput.value = "";
-}
-
-sendBtn.addEventListener("click", userSend);
-userInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") userSend();
-});
-
-// Greet user at start
-appendMessage("Nyxel AI: Hello! Type something to start the conversation.", "bot");
+  appendMessage("Nyxel AI: Hi! Let's get started. Say 'hi' or tell me something.", "bot");
 </script>
 
 </body>
