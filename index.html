@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Nyxel AI - Expanded Chatbot</title>
+<title>Nyxel AI - Math Friendly Chatbot</title>
 <style>
   body { font-family: Arial, sans-serif; background: #121212; color: #eee; }
   #chatbox { width: 600px; max-width: 90vw; margin: 2rem auto; background: #222; padding: 1rem; border-radius: 8px; }
@@ -22,7 +22,7 @@
 <div id="chatbox">
   <div id="messages"></div>
   <div id="inputArea">
-    <input id="userInput" placeholder="Say something..." autocomplete="off" />
+    <input id="userInput" placeholder="Say something or type math (e.g. 4 * 5)" autocomplete="off" />
     <button onclick="sendMessage()">Send</button>
   </div>
 </div>
@@ -31,13 +31,25 @@
   const messages = document.getElementById('messages');
   const input = document.getElementById('userInput');
 
-  // Basic math evaluator for simple expressions (numbers + +-*/)
   function evalMath(expr) {
+    expr = expr.replace(/\s+/g, '');
+    if (!/^[0-9+\-*/().]+$/.test(expr)) return null;
+    if (/[\+\*\/]{2,}/.test(expr)) return null;
+
+    let stack = [];
+    for (let char of expr) {
+      if (char === '(') stack.push(char);
+      else if (char === ')') {
+        if (stack.length === 0) return null;
+        stack.pop();
+      }
+    }
+    if (stack.length !== 0) return null;
+
     try {
-      if (!/^[0-9+\-*/. ()]+$/.test(expr)) return null;
       let result = eval(expr);
-      if (typeof result === 'number' && !isNaN(result)) {
-        return result;
+      if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
+        return Math.round(result * 1e6) / 1e6;
       }
     } catch {
       return null;
@@ -45,78 +57,29 @@
     return null;
   }
 
-  // Generate a paragraph of text on topics
-  function generateParagraph(topic) {
-    const paragraphs = {
-      'time': `Time is a continuous flow that we measure to organize our lives. It never stops and keeps us moving forward.`,
-      'joke': `Why don't scientists trust atoms? Because they make up everything!`,
-      'meme': `Memes are the language of the internet, full of humor and inside jokes that connect people worldwide.`,
-      'name': `I am Nyxel AI, your clever assistant ready to chat and help you anytime.`,
-      'weather': `Weather changes constantly, affecting our mood and plans. I hope it's nice wherever you are!`,
-      'music': `Music is a universal language that touches the soul and makes life better.`,
-      'movie': `Movies tell stories that inspire, entertain, and sometimes make us think deeply.`,
-      'book': `Books open doors to new worlds and ideas, a treasure trove of knowledge and imagination.`,
-      'sports': `Sports bring people together, with excitement, teamwork, and unforgettable moments.`,
-      'travel': `Travel broadens your perspective and introduces you to amazing cultures and people.`,
-      'food': `Good food nourishes the body and delights the senses.`,
-      'technology': `Technology keeps evolving, changing how we live, work, and play.`,
-      'friendship': `True friendship is a priceless gift that supports us through life's ups and downs.`,
-      'love': `Love is a powerful force that inspires and connects us deeply.`,
-      'fun': `Having fun is essential; it keeps our spirits high and stress low.`,
-      'life': `Life is an adventure full of surprises, challenges, and beautiful moments.`,
-      'dreams': `Dreams motivate us to reach for the stars and never give up.`,
-      'education': `Education is the foundation for personal growth and opportunity.`,
-      'history': `History teaches us about our past and shapes our future.`,
-      'science': `Science uncovers the mysteries of the universe and improves our lives.`,
-      'art': `Art expresses feelings and ideas that words sometimes can't.`,
-      'nature': `Nature offers peace, beauty, and inspiration to all who take the time to appreciate it.`,
-      'coding': `Coding is like magic that brings ideas to life through technology.`,
-      'space': `Space exploration expands our horizons and curiosity about the cosmos.`,
-      'philosophy': `Philosophy asks the big questions and helps us think deeply.`,
-      'fitness': `Fitness keeps the body strong and the mind sharp.`,
-      'health': `Good health is the cornerstone of a happy life.`,
-      'motivation': `Motivation is the spark that drives us to achieve our goals.`,
-      'hobby': `Hobbies bring joy and relaxation to busy lives.`,
-      'nature': `Nature is a wonderful teacher and a source of calmness.`,
-      'pets': `Pets are loyal friends that bring love and laughter.`,
-      'sleep': `Sleep restores energy and keeps the mind clear.`,
-      'shopping': `Shopping can be fun, especially when you find something special.`,
-      'work': `Work challenges us and gives purpose to our days.`,
-      'money': `Money helps us meet needs and enjoy comforts, but it isn't everything.`,
-      'holiday': `Holidays give us time to rest and celebrate with loved ones.`,
-      'games': `Games provide entertainment and sharpen strategic thinking.`,
-      'funny': `I love a good laugh! Humor makes life brighter.`,
-      'bye': `Goodbye! It was nice chatting with you.`,
-      'thanks': `You're welcome! I'm here anytime you need me.`,
-      'default': `I'm here to chat about anything you want. Try asking me about time, jokes, memes, or basic math!`
-    };
-    return paragraphs[topic] || paragraphs['default'];
-  }
-
   function botResponse(text) {
     text = text.toLowerCase();
 
-    // Specific responses for "lol" or laughter
+    if (/\b(help|commands|options|what can you do|how to use)\b/.test(text)) {
+      return `You can ask me about math (e.g. 4 + 5), jokes, memes, time, date, or just chat! Try saying "joke", "time", or "meme".`;
+    }
+
     if (/\b(lol|haha|hehe|rofl|lmao|xd|lul)\b/.test(text)) {
       return "Haha!";
     }
 
-    // Greetings
     if (/\b(hi|hello|hey|yo|sup|howdy|greetings|good morning|good afternoon|good evening|hey there)\b/.test(text)) {
       return "Hello! How can I assist you today?";
     }
 
-    // Farewells
     if (/\b(bye|goodbye|see you|farewell|later|catch you|take care)\b/.test(text)) {
       return "Goodbye! Hope to chat again soon.";
     }
 
-    // Thanks
     if (/\b(thanks|thank you|thx|ty|much appreciated|cheers)\b/.test(text)) {
       return "You're welcome! Glad I could help.";
     }
 
-    // Time and date
     if (text.includes('time')) {
       const now = new Date();
       return `The current time is ${now.toLocaleTimeString()}.`;
@@ -126,49 +89,29 @@
       return `Today's date is ${now.toLocaleDateString()}.`;
     }
 
-    // Joke
     if (text.includes('joke') || text.includes('funny')) {
-      return generateParagraph('joke');
+      return `Why don't scientists trust atoms? Because they make up everything!`;
     }
 
-    // Meme
     if (text.includes('meme')) {
-      return generateParagraph('meme');
+      return `Memes are the language of the internet, full of humor and inside jokes that connect people worldwide.`;
     }
 
-    // Name or identity
     if (text.includes('name') || text.includes('who are you') || text.includes('yourself')) {
-      return generateParagraph('name');
+      return `I am Nyxel AI, your clever assistant ready to chat and help you anytime.`;
     }
 
-    // Topics with paragraphs
-    const topicKeywords = [
-      'weather','music','movie','book','sports','travel','food','technology','friendship',
-      'love','fun','life','dreams','education','history','science','art','nature','coding',
-      'space','philosophy','fitness','health','motivation','hobby','pets','sleep','shopping',
-      'work','money','holiday','games'
-    ];
-
-    for (let topic of topicKeywords) {
-      if (text.includes(topic)) {
-        return generateParagraph(topic);
-      }
-    }
-
-    // Basic math check and eval
     const mathResult = evalMath(text);
     if (mathResult !== null) {
       return `The answer is ${mathResult}.`;
     }
 
-    // Default fallback
-    return generateParagraph('default');
+    return `I'm here to chat about anything you want. Type "help" if you want some ideas!`;
   }
 
   function appendMessage(sender, message) {
     const div = document.createElement('div');
-    div.classList.add('message');
-    div.classList.add(sender);
+    div.classList.add('message', sender);
     div.textContent = message;
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
@@ -190,7 +133,7 @@
   });
 
   // Initial greeting
-  appendMessage('bot', "Hi! I'm Nyxel AI, your friendly assistant. Try saying hi, joke, time, meme, math like '2 + 2', or many other topics!");
+  appendMessage('bot', "Hi! I'm Nyxel AI, ask me anything!");
 </script>
 
 </body>
