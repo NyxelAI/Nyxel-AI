@@ -37,12 +37,11 @@
   <div id="messages"></div>
   <div id="inputArea">
     <input id="userInput" placeholder="Say something or enter math like '4 * 5'" autocomplete="off" />
-    <button onclick="sendMessage()">Send</button>
+    <button id="sendBtn">Send</button>
   </div>
 </div>
 
 <script>
-// Keyword responses (about 300 for demo, extend as needed)
 const keywordResponses = {
   "hi": "Hi! I'm Nyxel AI, ask me anything!",
   "hello": "Hello! How can I help you today?",
@@ -73,10 +72,9 @@ const keywordResponses = {
   "inspire": "Keep pushing forward, every step counts!",
   "story": "Would you like me to generate a short story? Just say 'story about' followed by a topic.",
   "essay": "I can write a short essay about many topics, try 'essay about AI'!",
-  // ... (add many more here)
+  // ... Add more keywords here as you want
 };
 
-// Normalize input and check for keywords
 function findKeywordResponse(input) {
   input = input.toLowerCase();
   for (const [key, response] of Object.entries(keywordResponses)) {
@@ -87,25 +85,18 @@ function findKeywordResponse(input) {
   return null;
 }
 
-// Simple math parser using eval (safe for controlled input only!)
-// Only allow digits and math operators
 function tryMath(input) {
-  // Allow digits, + - * / ( ) and spaces only
   if (/^[\d+\-*/().\s]+$/.test(input)) {
     try {
-      // eslint-disable-next-line no-eval
       let result = eval(input);
       if (typeof result === "number" && isFinite(result)) {
         return `Result: ${result}`;
       }
-    } catch {
-      return null;
-    }
+    } catch {}
   }
   return null;
 }
 
-// Generate a simple paragraph reply
 function generateParagraph(input) {
   const baseReplies = [
     "That's interesting! Can you tell me more?",
@@ -119,12 +110,9 @@ function generateParagraph(input) {
     "I'm listening.",
     "Go on...",
   ];
-  // Just pick a random one for now
-  const reply = baseReplies[Math.floor(Math.random() * baseReplies.length)];
-  return reply;
+  return baseReplies[Math.floor(Math.random() * baseReplies.length)];
 }
 
-// Append message to chat window
 function appendMessage(text, sender) {
   const messagesDiv = document.getElementById("messages");
   const div = document.createElement("div");
@@ -134,7 +122,6 @@ function appendMessage(text, sender) {
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-// Handle user input
 function sendMessage() {
   const inputElem = document.getElementById("userInput");
   const userText = inputElem.value.trim();
@@ -142,25 +129,23 @@ function sendMessage() {
   appendMessage(userText, "user");
   inputElem.value = "";
 
-  // Check for keyword
   let reply = findKeywordResponse(userText);
-  // If no keyword, try math
-  if (!reply) {
-    reply = tryMath(userText);
-  }
-  // If still no reply, generate paragraph
-  if (!reply) {
-    reply = generateParagraph(userText);
-  }
+  if (!reply) reply = tryMath(userText);
+  if (!reply) reply = generateParagraph(userText);
   appendMessage(reply, "bot");
 }
 
-// Initialize chat with greeting
-appendMessage("Hi! I'm Nyxel AI, ask me anything! Type 'help' for assistance.", "bot");
-
+// Event listeners for button and Enter key
+document.getElementById("sendBtn").addEventListener("click", sendMessage);
 document.getElementById("userInput").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") sendMessage();
+  if (e.key === "Enter") {
+    e.preventDefault();
+    sendMessage();
+  }
 });
+
+// Initial greeting
+appendMessage("Hi! I'm Nyxel AI, ask me anything! Type 'help' for assistance.", "bot");
 </script>
 
 </body>
