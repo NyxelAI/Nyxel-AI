@@ -1,152 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Nyxel AI - Hybrid Chatbot</title>
-<style>
-  body { font-family: Arial, sans-serif; background: #121212; color: #eee; margin: 0; padding: 0; }
-  #chatbox {
-    width: 700px; max-width: 95vw; margin: 2rem auto; background: #222;
-    padding: 1rem; border-radius: 8px; box-shadow: 0 0 15px #0f0;
-  }
-  #messages {
-    height: 450px; overflow-y: auto; border: 1px solid #555;
-    padding: 10px; background: #111; border-radius: 6px; white-space: pre-wrap;
-  }
-  .message { margin-bottom: 1rem; }
-  .user { color: #6cf; }
-  .bot { color: #9f6; }
-  #inputArea {
-    margin-top: 1rem; display: flex;
-  }
-  #inputArea input {
-    flex-grow: 1; padding: 10px; border-radius: 6px 0 0 6px;
-    border: none; font-size: 1rem; background: #333; color: #eee;
-  }
-  #inputArea button {
-    padding: 10px 20px; background: #3a3; border: none;
-    border-radius: 0 6px 6px 0; color: white; font-weight: bold; cursor: pointer;
-  }
-  #inputArea button:hover { background: #4c4; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nyxel AI</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-<div id="chatbox">
-  <div id="messages"></div>
-  <div id="inputArea">
-    <input id="userInput" placeholder="Say something or enter math like '4 * 5'" autocomplete="off" />
-    <button id="sendBtn">Send</button>
+  <div id="chat-container">
+    <div id="header">Nyxel AI</div>
+    <div id="chat-box"></div>
+    <form id="chat-form">
+      <input type="text" id="user-input" placeholder="Ask something..." autocomplete="off" required />
+      <button type="submit">Send</button>
+    </form>
   </div>
-</div>
 
-<script>
-const keywordResponses = {
-  "hi": "Hi! I'm Nyxel AI, ask me anything!",
-  "hello": "Hello! How can I help you today?",
-  "hey": "Hey there! What would you like to chat about?",
-  "how are you": "I'm just code, but thanks for asking!",
-  "lol": "Haha!",
-  "joke": "Why don't scientists trust atoms? Because they make up everything!",
-  "time": () => `The current time is ${new Date().toLocaleTimeString()}.`,
-  "date": () => `Today's date is ${new Date().toLocaleDateString()}.`,
-  "help": "You can ask me about jokes, math, time, or just chat freely!",
-  "name": "I am Nyxel AI, your friendly assistant.",
-  "thank you": "You're welcome!",
-  "thanks": "No problem!",
-  "goodbye": "Goodbye! Have a great day!",
-  "bye": "See you later!",
-  "who are you": "I am Nyxel AI, designed to chat and help you out.",
-  "what is your name": "My name is Nyxel AI.",
-  "meme": "Here's a classic meme: Why did the chicken cross the road? To get to the other side!",
-  "weather": "I can't check real-time weather, but I hope it's nice where you are!",
-  "music": "Music is the food of the soul, what do you like to listen to?",
-  "news": "I don't have live news access, but feel free to share any interesting updates!",
-  "math": "You can ask me to calculate expressions like 3 + 5 * 2.",
-  "add": "I can add numbers for you, just type the expression.",
-  "subtract": "Subtraction? No problem, just ask me!",
-  "multiply": "Multiplication is easy, go ahead and try.",
-  "divide": "I can handle division too!",
-  "quote": "Here’s a quote: 'The only limit to our realization of tomorrow is our doubts of today.' — Franklin D. Roosevelt",
-  "inspire": "Keep pushing forward, every step counts!",
-  "story": "Would you like me to generate a short story? Just say 'story about' followed by a topic.",
-  "essay": "I can write a short essay about many topics, try 'essay about AI'!",
-  // ... Add more keywords here as you want
-};
-
-function findKeywordResponse(input) {
-  input = input.toLowerCase();
-  for (const [key, response] of Object.entries(keywordResponses)) {
-    if (input.includes(key)) {
-      return typeof response === 'function' ? response() : response;
-    }
-  }
-  return null;
-}
-
-function tryMath(input) {
-  if (/^[\d+\-*/().\s]+$/.test(input)) {
-    try {
-      let result = eval(input);
-      if (typeof result === "number" && isFinite(result)) {
-        return `Result: ${result}`;
-      }
-    } catch {}
-  }
-  return null;
-}
-
-function generateParagraph(input) {
-  const baseReplies = [
-    "That's interesting! Can you tell me more?",
-    "I see, please continue.",
-    "Hmm, I hadn't thought of it that way.",
-    "Could you explain that a bit more?",
-    "Fascinating topic! What else?",
-    "Let's explore this further.",
-    "That reminds me of something I've read.",
-    "Tell me more about that.",
-    "I'm listening.",
-    "Go on...",
-  ];
-  return baseReplies[Math.floor(Math.random() * baseReplies.length)];
-}
-
-function appendMessage(text, sender) {
-  const messagesDiv = document.getElementById("messages");
-  const div = document.createElement("div");
-  div.className = "message " + sender;
-  div.textContent = text;
-  messagesDiv.appendChild(div);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-
-function sendMessage() {
-  const inputElem = document.getElementById("userInput");
-  const userText = inputElem.value.trim();
-  if (!userText) return;
-  appendMessage(userText, "user");
-  inputElem.value = "";
-
-  let reply = findKeywordResponse(userText);
-  if (!reply) reply = tryMath(userText);
-  if (!reply) reply = generateParagraph(userText);
-  appendMessage(reply, "bot");
-}
-
-// Event listeners for button and Enter key
-document.getElementById("sendBtn").addEventListener("click", sendMessage);
-document.getElementById("userInput").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    sendMessage();
-  }
-});
-
-// Initial greeting
-appendMessage("Hi! I'm Nyxel AI, ask me anything! Type 'help' for assistance.", "bot");
-</script>
-
+  <script src="script.js"></script>
 </body>
 </html>
