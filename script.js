@@ -1,4 +1,4 @@
-const apiKey = 'YOUR_API_KEY_HERE'; // Replace with your OpenAI API key
+const apiKey = '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'; // Replace with your OpenAI API key
 
 document.getElementById('chat-form').addEventListener('submit', async (e) => {
   e.preventDefault();
